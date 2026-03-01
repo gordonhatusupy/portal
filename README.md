@@ -1,5 +1,7 @@
 # Portal
 
+[![Security](https://github.com/gordonhatusupy/portal/actions/workflows/security.yml/badge.svg)](https://github.com/gordonhatusupy/portal/actions/workflows/security.yml)
+
 Portal is a native macOS menu bar utility for monitoring and managing running local web servers.
 
 When Portal is running, it lives in your menu bar and Dock, automatically discovers local web servers, shows the project name, active Git branch, localhost URL, and runtime, and lets you open or stop a server in one click.
