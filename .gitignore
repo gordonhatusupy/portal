@@ -11,3 +11,5 @@ DerivedData/
 .cache/
 .local-home/
 .tmp-home/
+dist/
+.derivedData-release/

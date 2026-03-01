@@ -29,6 +29,12 @@ When Portal is running, it lives in your menu bar and Dock, automatically discov
 - Xcode 16 or newer (recommended)
 - Swift 6 toolchain
 
+## Direct download releases
+
+Portal supports direct-download release packaging via GitHub Releases.
+
+When a signed and notarized build is published, you will be able to download the latest packaged app from the repository's [Releases](https://github.com/gordonhatusupy/portal/releases) page, unzip it, and move `Portal.app` into `/Applications`.
+
 ## Running in Xcode
 
 1. Clone this repository.
@@ -105,7 +111,7 @@ At runtime, Portal:
 
 - Server detection is heuristic-based and optimized for local development servers.
 - HTTPS is not inferred yet; URLs currently open as `http://localhost:<port>`.
-- There is no notarized release or one-click installer yet.
+- Signed/notarized direct-download releases require Apple Developer signing credentials and a tagged release workflow run.
 - Some system listeners may be filtered out or ignored if they do not resolve to a plausible project directory.
 
 ## Roadmap
