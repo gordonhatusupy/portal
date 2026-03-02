@@ -73,50 +73,12 @@ public final class ServerDiscoveryService: ServerDiscoveryServing {
 
         do {
             let sockets = try await processInspectionService.listListeningSockets()
-            let now = Date()
-            var records: [ServerRecord] = []
-            var seenIDs = Set<String>()
-
-            for socket in sockets {
-                let context = await processInspectionService.processContext(for: socket)
-                let projectRoot = projectRootResolver.resolveBest(
-                    cwd: context.currentWorkingDirectory,
-                    executablePath: context.executablePath
-                )
-
-                guard PortFilter.shouldInclude(host: socket.host, port: socket.port, projectRoot: projectRoot) else {
-                    continue
-                }
-
-                guard let projectRoot else { continue }
-
-                let branch = await gitInfoService.branch(for: projectRoot)
-                let startedAt = context.startedAt ?? now
-                let id = "\(socket.pid)-\(socket.port)"
-                guard seenIDs.insert(id).inserted else { continue }
-
-                let record = ServerRecord(
-                    id: id,
-                    pid: socket.pid,
-                    port: socket.port,
-                    host: socket.host,
-                    projectRoot: projectRoot,
-                    appName: projectRoot.lastPathComponent,
-                    gitBranch: branch,
-                    startedAt: startedAt,
-                    lastSeenAt: now,
-                    openURL: URL(string: "http://localhost:\(socket.port)") ?? URL(fileURLWithPath: "/"),
-                    processName: context.processName
-                )
-                records.append(record)
-            }
-
-            records.sort {
-                if $0.startedAt == $1.startedAt {
-                    return $0.port < $1.port
-                }
-                return $0.startedAt > $1.startedAt
-            }
+            let records = await buildRecords(
+                from: sockets,
+                processInspectionService: processInspectionService,
+                projectRootResolver: projectRootResolver,
+                gitInfoService: gitInfoService
+            )
 
             lastKnownRecords = records
             publish(records.isEmpty ? .empty : .ready(records))
@@ -132,4 +94,60 @@ public final class ServerDiscoveryService: ServerDiscoveryServing {
     private func publish(_ state: ServerListState) {
         onStateChange?(state)
     }
+}
+
+/// Runs on the cooperative thread pool so filesystem I/O
+/// (project root resolution, git branch reads) never blocks the main thread.
+private func buildRecords(
+    from sockets: [ListeningSocket],
+    processInspectionService: ProcessInspectionService,
+    projectRootResolver: ProjectRootResolver,
+    gitInfoService: GitInfoService
+) async -> [ServerRecord] {
+    let now = Date()
+    var records: [ServerRecord] = []
+    var seenIDs = Set<String>()
+
+    for socket in sockets {
+        let context = await processInspectionService.processContext(for: socket)
+        let projectRoot = projectRootResolver.resolveBest(
+            cwd: context.currentWorkingDirectory,
+            executablePath: context.executablePath
+        )
+
+        guard PortFilter.shouldInclude(host: socket.host, port: socket.port, projectRoot: projectRoot) else {
+            continue
+        }
+
+        guard let projectRoot else { continue }
+
+        let branch = await gitInfoService.branch(for: projectRoot)
+        let startedAt = context.startedAt ?? now
+        let id = "\(socket.pid)-\(socket.port)"
+        guard seenIDs.insert(id).inserted else { continue }
+
+        let record = ServerRecord(
+            id: id,
+            pid: socket.pid,
+            port: socket.port,
+            host: socket.host,
+            projectRoot: projectRoot,
+            appName: projectRoot.lastPathComponent,
+            gitBranch: branch,
+            startedAt: startedAt,
+            lastSeenAt: now,
+            openURL: URL(string: "http://localhost:\(socket.port)") ?? URL(fileURLWithPath: "/"),
+            processName: context.processName
+        )
+        records.append(record)
+    }
+
+    records.sort {
+        if $0.startedAt == $1.startedAt {
+            return $0.port < $1.port
+        }
+        return $0.startedAt > $1.startedAt
+    }
+
+    return records
 }

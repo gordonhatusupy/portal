@@ -42,6 +42,16 @@ final class ProjectRootResolverTests: XCTestCase {
         XCTAssertNil(resolver.resolve(from: leafDirectory))
     }
 
+    func testReturnsNilForRootDirectory() {
+        let resolver = ProjectRootResolver()
+        XCTAssertNil(resolver.resolve(from: URL(fileURLWithPath: "/")))
+    }
+
+    func testReturnsNilForRootDirectoryViaResolveBest() {
+        let resolver = ProjectRootResolver()
+        XCTAssertNil(resolver.resolveBest(cwd: URL(fileURLWithPath: "/"), executablePath: nil))
+    }
+
     private func createTempDirectory() throws -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
