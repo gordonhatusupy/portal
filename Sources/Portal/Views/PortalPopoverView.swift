@@ -67,6 +67,15 @@ struct PortalPopoverView: View {
 
             Spacer()
 
+            Button {
+                viewModel.refreshNow()
+            } label: {
+                Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(.secondary)
+
             Button("Quit") {
                 onQuit()
             }
