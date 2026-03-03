@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ProjectRootResolver {
+public struct ProjectRootResolver: @unchecked Sendable {
     public let fileManager: FileManager
     public let homeDirectoryOverride: URL?
     private let markers = [
@@ -47,11 +47,15 @@ public struct ProjectRootResolver {
                 return current
             }
 
+            if current.path == "/" {
+                return nil
+            }
+
             if stopAtHome && current.path == homeDirectory.path {
                 return nil
             }
 
-            let parent = current.deletingLastPathComponent()
+            let parent = current.deletingLastPathComponent().standardizedFileURL
             if parent.path == current.path {
                 return nil
             }
