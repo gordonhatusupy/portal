@@ -11,6 +11,7 @@ DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-.derivedData-release}"
 APP_PATH="$DIST_DIR/$APP_NAME.app"
 NOTARIZATION_ZIP_PATH="$DIST_DIR/$APP_NAME-notarization.zip"
 RELEASE_ZIP_PATH="$DIST_DIR/$APP_NAME-macOS.zip"
+DMG_PATH="$DIST_DIR/$APP_NAME-macOS.dmg"
 
 SKIP_NOTARIZATION="${SKIP_NOTARIZATION:-0}"
 DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-}"
@@ -172,5 +173,14 @@ else
   ditto -c -k --keepParent "$APP_PATH" "$RELEASE_ZIP_PATH"
 fi
 
-log "Release artifact ready:"
+log "Creating DMG installer"
+DMG_STAGING="$DIST_DIR/dmg-staging"
+mkdir -p "$DMG_STAGING"
+cp -R "$APP_PATH" "$DMG_STAGING/"
+ln -s /Applications "$DMG_STAGING/Applications"
+hdiutil create -volname "$APP_NAME" -srcfolder "$DMG_STAGING" -ov -format UDZO "$DMG_PATH"
+rm -rf "$DMG_STAGING"
+
+log "Release artifacts ready:"
 printf '  %s\n' "$RELEASE_ZIP_PATH"
+printf '  %s\n' "$DMG_PATH"

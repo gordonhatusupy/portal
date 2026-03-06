@@ -29,11 +29,21 @@ When Portal is running, it lives in your menu bar and Dock, automatically discov
 - Xcode 16 or newer (recommended)
 - Swift 6 toolchain
 
-## Direct download releases
+## Installation
 
-Portal supports direct-download release packaging via GitHub Releases.
+### Homebrew
 
-When a signed and notarized build is published, you will be able to download the latest packaged app from the repository's [Releases](https://github.com/gordonhatusupy/portal/releases) page, unzip it, and move `Portal.app` into `/Applications`.
+```bash
+brew install --cask gordonhatusupy/portal/portal
+```
+
+### Direct download
+
+Download the latest `Portal-macOS.dmg` from the [Releases](https://github.com/gordonhatusupy/portal/releases) page, open it, and drag Portal to Applications.
+
+### From source
+
+See [Building from the command line](#building-from-the-command-line) below.
 
 ## Running in Xcode
 
@@ -118,8 +128,6 @@ At runtime, Portal:
 
 - Improve server detection heuristics
 - Add launch-at-login support
-- Ship signed / notarized downloadable releases
-- Publish GitHub Releases with packaged `.app` builds
 - Add richer actions such as restart or log access
 
 ## Contributing
