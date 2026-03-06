@@ -71,10 +71,18 @@ struct PortalPopoverView: View {
                 viewModel.refreshNow()
             } label: {
                 Image(systemName: "arrow.clockwise")
+                    .rotationEffect(.degrees(viewModel.isRefreshing ? 360 : 0))
+                    .animation(
+                        viewModel.isRefreshing
+                            ? .linear(duration: 0.8).repeatForever(autoreverses: false)
+                            : .default,
+                        value: viewModel.isRefreshing
+                    )
             }
             .buttonStyle(.plain)
             .font(.system(size: 13, weight: .medium))
             .foregroundStyle(.secondary)
+            .disabled(viewModel.isRefreshing)
 
             Button("Quit") {
                 onQuit()

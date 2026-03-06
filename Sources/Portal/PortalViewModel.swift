@@ -8,6 +8,7 @@ final class PortalViewModel: ObservableObject {
     @Published private(set) var busyServerIDs: Set<String> = []
     @Published private(set) var lastActionError: String?
     @Published private(set) var lastActionSuccess: String?
+    @Published private(set) var isRefreshing = false
 
     private let discoveryService: ServerDiscoveryServing
     private let actionService: ServerActionServing
@@ -30,8 +31,11 @@ final class PortalViewModel: ObservableObject {
     }
 
     func refreshNow() {
+        guard !isRefreshing else { return }
+        isRefreshing = true
         Task {
             await discoveryService.refreshNow()
+            self.isRefreshing = false
         }
     }
 
